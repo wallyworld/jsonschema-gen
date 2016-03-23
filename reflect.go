@@ -8,17 +8,22 @@ package jsonschema
 
 import (
 	"encoding/json"
+	"fmt"
 	"net"
 	"net/url"
+	"os"
 	"reflect"
 	"strings"
 	"time"
+
+	"github.com/juju/juju/rpc/rpcreflect"
 )
 
 var (
 	timeType = reflect.TypeOf(time.Time{})
 	ipType   = reflect.TypeOf(net.IP{})
 	urlType  = reflect.TypeOf(url.URL{})
+	objType  = reflect.TypeOf(rpcreflect.ObjType{})
 )
 
 type Type struct {
@@ -58,6 +63,40 @@ func ReflectFromType(t reflect.Type) *Schema {
 	return s
 }
 
+// rpcreflect is itself a description so we provide additional handling here
+func ReflectFromObjType(objtype *rpcreflect.ObjType) *Schema {
+	definitions := Definitions{}
+	s := &Schema{
+		Definitions: definitions,
+	}
+
+	methodNames := objtype.MethodNames()
+	props := make(map[string]*Type, len(methodNames))
+	for _, n := range methodNames {
+		method, err := objtype.Method(n)
+		if err == nil {
+			callmap := make(map[string]*Type)
+			if method.Params != nil {
+				callmap["Params"] = reflectTypeToSchema(definitions, method.Params)
+			}
+			if method.Result != nil {
+				callmap["Result"] = reflectTypeToSchema(definitions, method.Result)
+			}
+
+			props[n] = &Type{
+				Type:       "object",
+				Properties: callmap,
+			}
+		}
+	}
+
+	s.Type = &Type{
+		Type:       "object",
+		Properties: props,
+	}
+	return s
+}
+
 type Definitions map[string]*Type
 
 func reflectTypeToSchema(definitions Definitions, t reflect.Type) *Type {
@@ -91,7 +130,7 @@ func reflectTypeToSchema(definitions Definitions, t reflect.Type) *Type {
 		delete(rt.PatternProperties, "additionalProperties")
 		return rt
 
-	case reflect.Slice:
+	case reflect.Array, reflect.Slice:
 		return &Type{
 			Type:  "array",
 			Items: reflectTypeToSchema(definitions, t.Elem()),
@@ -119,7 +158,9 @@ func reflectTypeToSchema(definitions Definitions, t reflect.Type) *Type {
 	case reflect.Ptr:
 		return reflectTypeToSchema(definitions, t.Elem())
 	}
-	panic("unsupported type " + t.String())
+
+	fmt.Fprintf(os.Stderr, "Unsupported Type %s", t.String())
+	return nil
 }
 
 func reflectStruct(definitions Definitions, t reflect.Type) *Type {
