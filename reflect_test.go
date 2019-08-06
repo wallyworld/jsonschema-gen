@@ -55,6 +55,7 @@ func TestSchemaGeneration(t *testing.T) {
 		"some_base_property":       "integer",
 		"grand":                    "#/definitions/GrandfatherType",
 		"SomeUntaggedBaseProperty": "boolean",
+		"SomeBaseType":             "#/definitions/SomeBaseType",
 	}
 
 	props := s.Definitions["TestUser"].Properties

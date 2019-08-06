@@ -181,17 +181,18 @@ func reflectStructFields(st *Type, definitions Definitions, t reflect.Type) {
 	}
 	for i := 0; i < t.NumField(); i++ {
 		f := t.Field(i)
-		// anonymous and exported type should be processed recursively
-		// current type should inherit properties of anonymous one
-		//if f.Anonymous && f.PkgPath == "" {
-		//	reflectStructFields(st, definitions, f.Type)
-		//	continue
-		//}
 
-		name, required := reflectFieldName(f)
+		name, required, embedded := reflectFieldName(f)
 		if name == "" {
 			continue
 		}
+
+		// anonymous and exported type should be processed recursively
+		// current type should inherit properties of anonymous one
+		if embedded {
+			reflectStructFields(st, definitions, f.Type)
+		}
+
 		st.Properties[name] = reflectTypeToSchema(definitions, f.Type)
 		if required {
 			st.Required = append(st.Required, name)
@@ -199,13 +200,13 @@ func reflectStructFields(st *Type, definitions Definitions, t reflect.Type) {
 	}
 }
 
-func reflectFieldName(f reflect.StructField) (string, bool) {
+func reflectFieldName(f reflect.StructField) (string, bool, bool) {
 	if f.PkgPath != "" { // unexported field, ignore it
-		return "", false
+		return "", false, false
 	}
 	parts := strings.Split(f.Tag.Get("json"), ",")
 	if parts[0] == "-" {
-		return "", false
+		return "", false, false
 	}
 
 	name := f.Name
@@ -218,5 +219,6 @@ func reflectFieldName(f reflect.StructField) (string, bool) {
 	if len(parts) > 1 && parts[1] == "omitempty" {
 		required = false
 	}
-	return name, required
+	embedded := len(parts) == 1 && parts[0] == "" && f.Type.Kind() == reflect.Struct && f.Name == f.Type.Name() && f.Anonymous
+	return name, required, embedded
 }
