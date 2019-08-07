@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/SimonRichardson/rpcreflect"
+	"github.com/juju/rpcreflect"
 )
 
 var (

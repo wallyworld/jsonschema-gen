@@ -27,7 +27,7 @@
 
 [[constraint]]
   revision = "cca922e065df403dc5088294f7f546e838d13708"
-  name = "github.com/SimonRichardson/rpcreflect"
+  name = "github.com/juju/rpcreflect"
 
 [prune]
   go-tests = true
