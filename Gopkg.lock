@@ -2,15 +2,15 @@
 
 
 [[projects]]
-  digest = "1:d9d55e85924d14fd65332adbac9c660a8b6bbe402965c77fac6af1b8a70b282e"
-  name = "github.com/juju/juju"
-  packages = ["rpc/rpcreflect"]
+  digest = "1:49b61a2d186cbe71f1e72021b7bba7012b9433af2215f7ef07456344216efeff"
+  name = "github.com/juju/rpcreflect"
+  packages = ["."]
   pruneopts = "UT"
-  revision = "58d60964ab33001aaaf10c96888d3be48e293985"
+  revision = "cca922e065df403dc5088294f7f546e838d13708"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = ["github.com/juju/juju/rpc/rpcreflect"]
+  input-imports = ["github.com/juju/rpcreflect"]
   solver-name = "gps-cdcl"
   solver-version = 1
