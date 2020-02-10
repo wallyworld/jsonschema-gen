@@ -100,10 +100,6 @@ func ReflectFromObjType(objtype *rpcreflect.ObjType) *Schema {
 type Definitions map[string]*Type
 
 func reflectTypeToSchema(definitions Definitions, t reflect.Type) *Type {
-	if _, ok := definitions[t.Name()]; ok {
-		return &Type{Ref: "#/definitions/" + t.Name()}
-	}
-
 	switch t.Kind() {
 	case reflect.Struct:
 		switch t {
@@ -117,6 +113,10 @@ func reflectTypeToSchema(definitions Definitions, t reflect.Type) *Type {
 			return &Type{Type: "string", Format: "uri"}
 
 		default:
+			if _, ok := definitions[t.Name()]; ok {
+				return &Type{Ref: "#/definitions/" + t.Name()}
+			}
+
 			return reflectStruct(definitions, t)
 		}
 
