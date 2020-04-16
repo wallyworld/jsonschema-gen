@@ -2,11 +2,11 @@
 
 
 [[projects]]
-  digest = "1:49b61a2d186cbe71f1e72021b7bba7012b9433af2215f7ef07456344216efeff"
+  digest = "1:1e0ede92d5d52918ce7ff306b6979bedc3e1b86b078a97df13a3beff4c652490"
   name = "github.com/juju/rpcreflect"
   packages = ["."]
   pruneopts = "UT"
-  revision = "cca922e065df403dc5088294f7f546e838d13708"
+  revision = "bb46e9ba1476d7b637cb956362dc568858c0d177"
 
 [solve-meta]
   analyzer-name = "dep"
